@@ -40,8 +40,8 @@ echo "===============3==============="
 
 FRUIT="Banana"
 case "$FRUIT" in
-    "Apple") echo "Hell is Apple"
+    "Apple") echo "Here is Apple"
     ;;
-    "Banana") echo "HHH is Banana"
+    "Banana") echo "HAHA I'm Banana"
     ;;
 esac
