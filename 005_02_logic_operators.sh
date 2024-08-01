@@ -1,6 +1,16 @@
 #!bin/sh
 
 # relationship operation symbols
+# 关系运算符
+
+# relational operations are support to numeric values only. not support for string
+
+## -eq  means equal , ==
+## -ne  means not equal , !=
+## -gt  means greater than , >
+## -lt  means less than, <
+## -ge  means greater than or equal , >=
+## -le  means less than or equal, <=
 
 a=12
 b=24
@@ -45,7 +55,7 @@ fi
 
 a=25
 if [ $a -ge $b ]; then
-    echo "\t a ==$a is greater than b == $b"
+    echo "\t a ==$a is greater than or equal b == $b"
 fi
 
 # for more, review the reference link: https://www.tutorialspoint.com/unix/unix-relational-operators.htm
