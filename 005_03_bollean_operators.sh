@@ -2,6 +2,16 @@
 
 echo "The Boolean Operations are as follows"
 
+
+TEST0() {
+    # if [ $0 -gt 0 ] || [ $0 -lt 10 ]; then
+    if [ $1 -gt 0 -o $1 -lt 10 ]; then
+        echo "kk == $1"
+    fi
+}
+TEST0 998
+
+
 # !=
 echo "! represents logic negation"
 a=20
