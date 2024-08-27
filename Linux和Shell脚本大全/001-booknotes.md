@@ -483,11 +483,12 @@ shell 的运算通常有两种方式
 
 - 使用方括号
 
+  > ```shell
   > var=$[1 + 5]
+  > echo $var ## 6
+  > ```
   >
-  > echo $var 
-  >
-  > 6
+  > 注意在赋值的时候,需要再方括号前添加`$`符号
 
 ## 退出脚本
 
@@ -679,10 +680,10 @@ test07() {
 }
 ```
 
-### If--then的高级疼
+### If--then的高级用法
 
-- 用于数学表达式的双括号`(( ... ))`
-- 用于高级字符串处理功能的双方括号`[[ ... ]]`
+- 用于**数学表达式的双括号**`(( ... ))`
+- 用于**高级字符串处理功能的双方括号**`[[ ... ]]`
 
 #### 双括号
 
@@ -760,5 +761,193 @@ test10() {
 for var in list do
 commands
 done
+```
+
+可以用for命令来自动遍历目录中的文件。进行此操作时，必须在文件名或路径名中 使用通配符`(*)`。它会强制shell使用文件扩展匹配。
+
+```shell
+test02() {
+    ## 如果想要遍历某一个文件夹下的所有内容,需要使用通配符
+    path="/Users/lingxiao/.personal/study_and_code/shell-tutorial/*"
+
+    # path="/Users/lingxiao/.personal/study_and_code/shell-tutorial"
+
+    for file in $path
+    do
+    		# 这里需要注意下，如果file中包含 空格，需要把`$file` 通过 双引号 `"$file"` 包起来，否则会报错;(bash shell会将额外的单词当作参数，进而造成错误)
+        if [ -d "$file" ]; then
+            echo "$file is a directory"
+        elif [ -f "$file" ]; then
+            echo "$file is a raw file"
+        fi
+    done
+}
+```
+
+for 循环更多练习,列出系统中所有在 `$PATH` 环境变量中指定目录下的可执行文件
+
+```shell
+test04() {
+    IFS=:
+    for folder in $PATH
+    do  
+        echo "$folder:"
+        for file in $folder/*
+        do
+            if [ -x $file ]
+            then
+                echo "   $file"
+            fi 
+        done
+    done
+}
+```
+
+> 方法中第一行 `IFS=:`解释
+>
+> **作用**: 将Shell的内部字段分隔符（`IFS`）设置为冒号（`:`）。
+>
+> **原因**: 在Shell中，`IFS` 用于指定在变量展开和命令替换时，如何分隔字符串。默认情况下，`IFS` 包含空格、制表符和换行符。将其设置为冒号后，可以方便地将 `$PATH` 环境变量按照冒号分隔，遍历其中的每个目录。
+
+### C-Style For循环
+
+需要使用高级运算符 双括号， 同时 双括号 内部的变量 也不需要使用 `$`
+
+```shell
+test03() {
+    for (( var = 1; var < 10; var++)) ## 注意这里操作 var 不需要添加 `$`符号
+    do
+        echo "index == $var"
+    done
+}
+```
+
+### while循环
+
+```shell
+test01() {
+    declare var=0
+    while [ $var -lt 10 ]; do
+        # ((var++)) ##高级运算符里不需要带`$`
+        var=$[ $var + 1 ]
+        echo "$var"
+    done
+}
+```
+
+### 循环输出的重定向
+
+如下示例，在循环结束表示`done`后，添加重定向的命令
+
+```shell
+test02() {
+    ## 如果想要遍历某一个文件夹下的所有内容,需要使用通配符
+    path="/Users/lingxiao/.personal/study_and_code/shell-tutorial/*"
+    for file in $path
+    do
+        if [ -d $file ]; then
+            echo "$file is a directory"
+        elif [ -f $file ]; then
+            echo "$file is a raw file"
+        fi
+    done >> ./Redirections/log.y0823  ## 重定向
+}
+```
+
+## 处理用户输入
+
+- `$0`: 是程序名
+
+- `$1、$2、...$8、$9、${10}、${11}`：表示输入的参数
+
+- `$#` 表示参数的个数
+
+- `${!#}`获取最后一个参数;
+
+- `$*`和`$@`获取所有的参数
+
+  > 注意 不是 ${$#}, 因为花括号里不能接着放美元符
+
+> 如果只想要获取脚本名称可以使用`basename`命令
+
+```shell
+#!/bin/sh
+echo "\$0 == $0" #此处获取的是脚本的路径
+
+scriptName=$(basename $0) #此处获取 脚本的文件名称
+echo $scriptName 
+
+
+echo "1 == $1"
+echo "2 == $2"
+echo "3 == $3"
+echo "4 == $4"
+echo "5 == $5"
+echo "6 == $6"
+echo "7 == $7"
+echo "8 == $8"
+echo "9 == $9"
+echo "10 == ${10}"
+echo "11== ${11}"
+echo "12 == ${12}"
+
+echo "\$# total args count is == $#"
+
+echo "last args var is == ${$#}" ## 出错了last args var is == 69701,方括号里不能出现美元符
+echo "last args var is == ${!#}" ## 把美元符改成!就OK last args var is == 12
+
+echo "获取所有参数 \$*-- $*" # 获取所有参数 $*-- 1 2 3 4 5 6 7 8 9 10 11 12
+echo "获取所有参数 \$@-- $@" # 获取所有参数 $@-- 1 2 3 4 5 6 7 8 9 10 11 12
+```
+
+### `$*`和`$@`的区别
+
+`$*`和`$@`在没有添加引号的时候，两者一样
+
+当添加了引号，`"$*"` 会把所有的参数当成一个字符串，而`"$@"`会把参数当成一个数组
+
+接着上述代码
+
+```shell
+## $* 和 $@ 的区别
+#
+echo "---------\"\$*\"-------"
+count=1
+#
+for param in "$*"
+do
+   echo "\$* Parameter #$count = $param"
+   count=$[ $count + 1 ]
+done
+
+
+echo "---------\"\$@\"-------"
+count=1
+#
+for param in "$@"
+do
+   echo "\$@ Parameter #$count = $param"
+   count=$[ $count + 1 ]
+done
+```
+
+上述代码输出如下:
+
+```shell
+---------"$*"-------
+$* Parameter #1 = 1 2 3 4 5 6 7 8 9 10 11 12
+---------"$@"-------
+$@ Parameter #1 = 1
+$@ Parameter #2 = 2
+$@ Parameter #3 = 3
+$@ Parameter #4 = 4
+$@ Parameter #5 = 5
+$@ Parameter #6 = 6
+$@ Parameter #7 = 7
+$@ Parameter #8 = 8
+$@ Parameter #9 = 9
+$@ Parameter #10 = 10
+$@ Parameter #11 = 11
+$@ Parameter #12 = 12
 ```
 

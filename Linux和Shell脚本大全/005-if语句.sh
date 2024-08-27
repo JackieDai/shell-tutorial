@@ -91,16 +91,17 @@ test07() {
 
 test08() {
     var1=10
-    if (( $var1 ** 2 > 90 ))
+    if (( $var1 ** 2 > 90 )) #里面的$可以省略
     then
-        (( var2 = $var1 ** 2 ))
+        (( var2 = $var1 ** 2 )) # 左侧给var2赋值的时候不能省略,右侧可以omit
 
         # var3=(($var1 ** 2))
 
+            # The Square of 10 is var2 == 100 
         echo "The Square of $var1 is var2 == $var2 "
     fi
 }
-# test08  # The Square of 10 is 100
+test08  # The Square of 10 is 100
 
 test09() {
     if [[ $USER == l* ]] ## 这里用到了模式匹配
@@ -134,4 +135,4 @@ test10() {
 # test10 brarbara
 # test10 testing
 # test10 jessica
-test10 123
+# test10 123
