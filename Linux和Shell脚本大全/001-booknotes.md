@@ -951,3 +951,132 @@ $@ Parameter #11 = 11
 $@ Parameter #12 = 12
 ```
 
+### 脚本中`read`命令
+
+read命令从标准输入(键盘)或另一个文件描述符中接受输入。在收到输入后，read命令 会将数据放进一个变量。
+
+```shell
+#!/bin/sh
+test01() {
+    echo "Enter Your Name : "
+    read name ##把输入的字符赋值给变量`name`
+    echo "Hello $name, Welcome To Our World"
+}
+test01
+```
+
+> 上述代码输出结果：
+> Enter Your Name : 
+> lingxiao
+> Hello lingxiao, Welcome To Our World
+
+## Shell函数
+
+### 基础概念
+
+函数是一个脚本代码块，即一个代码块，这在其他语言中也是这样解释。
+
+函数定义的两种方式
+
+```shell
+function func_1 { # 名称后没有小括号
+    echo "hello world 001"  
+}
+func_1  ## hello world 001
+
+func_2() { ## 名称后面会有 小括号
+    echo "hello world 002"  
+}
+func_2 ## hello world 002
+```
+
+> 跟其他大多数一样,函数必须先声明才能使用。
+
+案例:
+
+输出 1到10 的数字
+
+```shell
+loop_test() {
+    count=0
+    while [ $count -lt 10 ]; do
+        count=$[ $count + 1 ]
+        echo "count == $count"
+    done
+}
+
+loop_test
+```
+
+### 返回值
+
+`Shell `会把函数当成一个小脚本，运行结束之后，会返回一个状态码
+
+#### 1. 默认退出状态码
+
+默认情况下，函数退出的状态码就是函数内部最后一条指令的退出状态码，可以通过`$?`来获取。
+
+我们接上述`loop_test`的函数来测试,我们能够看到返回的是`0`;标识函数运行成功
+
+```shell
+
+loop_test
+
+echo $?  ## 0
+```
+
+#### 2. 使用`return`命令
+
+shell使用return命令来退出函数并返回特定的退出状态码
+
+```shell
+double_value() {
+    read -p "Enter a value: " value  ## -p 选项允许你在读取用户输入之前显示一个提示信息（prompt）。在这里，提示信息是 "Enter a value: "。
+    echo "Doubling The Value"
+    return $[ $value * 2 ]  ## 返回特定的 退出状态码
+}
+
+double_value
+echo "The New Value is $?"
+```
+
+上述代码的输出如下:
+
+```
+Enter a value: 100
+Doubling The Value
+The New Value is 200
+```
+
+这里需要注意两点
+
+1. 调用函数结束之后就需要执行获取状态码的命令`$?`；
+
+   > 如果在用`$?`变量提取函数返回值之前执行了其他命令，函数的返回值就会丢失。记住，$? 变量会返回执行的最后一条命令的退出状态码。
+
+2. 状态码的取值范围是`0~255`
+
+所以如果要返回较大整数值或者是字符串的话，这种返回则不能够满足。
+
+#### 3.使用函数输出
+
+我们函数的输出保存到一个变量中
+
+```shell
+function double_value2 {
+    read -p "Enter a value: " value
+    # echo "Doubling The Value" 
+    echo $[ $value * 2 ]
+}
+result=$(double_value2) #注意这的函数调用,会把函数中所有 echo 的内容 赋值给 result
+echo "The New Value2 is $result"
+```
+
+输出结果如下:
+
+```
+Enter a value: 125
+The New Value2 is 250
+```
+
+新函数会用echo语句来显示计算的结果。该脚本会获取`double_value2`函数的输出，而不是查看退出状 态码。
